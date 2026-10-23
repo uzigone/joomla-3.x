@@ -172,6 +172,25 @@ class PlgEditorTinymce_latest extends JPlugin
 			$doc->addScriptOptions('plg_editor_tinymce_latest', $options);
 		}
 
+		// Media Manager checks the permissions of the edited asset before dispatching uploads.
+		// Keep this context per editor, since multiple editors may edit different assets on one page.
+		if (!empty($options['tinyMCE']['default']['joomla']['upload']))
+		{
+			$extension = $this->app->input->get('option', '', 'cmd');
+
+			if ($extension === 'com_categories')
+			{
+				$parts     = explode('.', (string) $this->app->input->get('extension', 'com_content', 'cmd'));
+				$extension = $parts[0];
+			}
+
+			$asset  = (string) $asset !== '' ? $asset : $extension;
+			$upload = $options['tinyMCE']['default']['joomla']['upload'];
+			$upload['url'] .= '&asset=' . rawurlencode((string) $asset) . '&author=' . (int) $author;
+			$options['tinyMCE'][$fieldName]['joomla']['upload'] = $upload;
+			$doc->addScriptOptions('plg_editor_tinymce_latest', $options, false);
+		}
+
 		return $editor;
 	}
 
@@ -341,7 +360,7 @@ class PlgEditorTinymce_latest extends JPlugin
 			$path = trim(str_replace('\\', '/', (string) $levelParams->get('path', '')), '/');
 
 			$joomla['upload'] = array(
-				'url'    => JUri::base(true) . '/index.php?option=com_media&task=file.upload&format=json',
+				'url'    => JUri::base(true) . '/index.php?option=com_media&task=file.upload&format=json&pop_up=1',
 				'token'  => JSession::getFormToken(),
 				'folder' => preg_match('#(^|/)\.\.(/|$)#', $path) ? '' : $path,
 				'root'   => JUri::root(true),

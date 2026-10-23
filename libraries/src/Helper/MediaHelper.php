@@ -20,6 +20,28 @@ use Joomla\CMS\Component\ComponentHelper;
 class MediaHelper
 {
 	/**
+	 * Checks that an existing path resolves to the media base or one of its descendants.
+	 * Resolve links and dot segments before comparing, and require a directory boundary.
+	 *
+	 * @param   string  $path  The path to check (the parent directory for a new file).
+	 * @param   string  $base  The configured media directory.
+	 *
+	 * @return  boolean
+	 */
+	public static function isPathWithinBase($path, $base)
+	{
+		$path = realpath($path);
+		$base = realpath($base);
+
+		if ($path === false || $base === false)
+		{
+			return false;
+		}
+
+		return $path === $base || strpos($path, rtrim($base, '/\\') . DIRECTORY_SEPARATOR) === 0;
+	}
+
+	/**
 	 * Checks if the file is an image
 	 *
 	 * @param   string  $fileName  The filename
@@ -30,7 +52,7 @@ class MediaHelper
 	 */
 	public function isImage($fileName)
 	{
-		static $imageTypes = 'xcf|odg|gif|jpg|png|bmp';
+		static $imageTypes = 'xcf|odg|gif|jpg|png|bmp|webp';
 
 		return preg_match("/\.(?:$imageTypes)$/i", $fileName);
 	}

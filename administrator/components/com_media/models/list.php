@@ -114,7 +114,7 @@ class MediaModelList extends JModelLegacy
 		$mediaBase = str_replace(DIRECTORY_SEPARATOR, '/', COM_MEDIA_BASE . '/');
 
 		// Reset base path
-		if (strpos(realpath($basePath), JPath::clean(realpath(COM_MEDIA_BASE))) !== 0)
+		if (!JHelperMedia::isPathWithinBase($basePath, COM_MEDIA_BASE))
 		{
 			$basePath = COM_MEDIA_BASE;
 		}
@@ -162,6 +162,7 @@ class MediaModelList extends JModelLegacy
 						case 'odg':
 						case 'bmp':
 						case 'jpeg':
+						case 'webp':
 						case 'ico':
 							$info = @getimagesize($tmp->path);
 							$tmp->width  = @$info[0];
